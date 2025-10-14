@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading List</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            padding: 2rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+        #book-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        #book-form input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        #book-form button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #book-form button:hover {
+            background-color: #0056b3;
+        }
+        #book-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .book-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+        .book-item:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        .book-info {
+            flex-grow: 1;
+        }
+        .book-info .title {
+            font-weight: bold;
+        }
+        .book-info .author {
+            color: #666;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .delete-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>My Reading List</h1>
+        <form id="book-form">
+            <input type="text" id="book-title" placeholder="Book Title" required>
+            <input type="text" id="book-author" placeholder="Author" required>
+            <button type="submit">Add Book</button>
+        </form>
+        <ul id="book-list"></ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bookForm = document.getElementById('book-form');
+            const bookList = document.getElementById('book-list');
+            const titleInput = document.getElementById('book-title');
+            const authorInput = document.getElementById('book-author');
+
+            // Load books from Local Storage
+            const getBooks = () => {
+                const books = localStorage.getItem('books');
+                return books ? JSON.parse(books) : [];
+            };
+
+            // Save books to Local Storage
+            const saveBooks = (books) => {
+                localStorage.setItem('books', JSON.stringify(books));
+            };
+
+            // Render books to the list
+            const renderBooks = () => {
+                bookList.innerHTML = '';
+                const books = getBooks();
+                books.forEach((book, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'book-item';
+                    li.innerHTML = `
+                        <div class="book-info">
+                            <span class="title">${book.title}</span>
+                            <span class="author">- ${book.author}</span>
+                        </div>
+                        <button class="delete-btn" data-index="${index}">Delete</button>
+                    `;
+                    bookList.appendChild(li);
+                });
+            };
+
+            // Add a new book
+            bookForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const books = getBooks();
+                books.push({ title: titleInput.value, author: authorInput.value });
+                saveBooks(books);
+                renderBooks();
+                bookForm.reset();
+            });
+
+            // Delete a book
+            bookList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-btn')) {
+                    const index = e.target.getAttribute('data-index');
+                    const books = getBooks();
+                    books.splice(index, 1);
+                    saveBooks(books);
+                    renderBooks();
+                }
+            });
+
+            // Initial render
+            renderBooks();
+        });
+    </script>
+
+</body>
+</html>
